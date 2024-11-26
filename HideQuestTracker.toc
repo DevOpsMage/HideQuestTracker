@@ -1,0 +1,7 @@
+## Interface: 11505
+## Version: 1.0
+## Title: Hide Quest Tracker
+## Notes: Hides the quest tracker, useful for when you have another addon that displays quests.
+## Author: Devopsmage
+## SavedVariables: HideQuestTrackerDB
+HideQuestTracker.lua
