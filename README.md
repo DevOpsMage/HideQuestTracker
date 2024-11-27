@@ -5,9 +5,10 @@ Hide Quest Tracker
 
 Hide Quest Tracker is a simple World of Warcraft - Classic addon designed to hide the quest tracker (also known as the objective tracker) that Blizzard doesn't allow players to disable through the standard interface options. This addon provides a clean, unobstructed view of your game screen by automatically hiding the quest tracker.
 
-**Mod/Addon Repos**
-[![CurseForge](https://cf.way2muchnoise.eu/1148408.svg)](https://www.curseforge.com/wow/addons/hide-quest-tracker-classic)
-[![WoWInterface](https://img.shields.io/badge/WoWInterface-Addon-blue?logo=wow)](https://www.wowinterface.com/downloads/fileinfo.php?id=26878)
+| Mod Site     | URL                                                                      |
+|--------------|--------------------------------------------------------------------------|
+| CurseForge | [![CurseForge](https://cf.way2muchnoise.eu/1148408.svg)](https://www.curseforge.com/wow/addons/hide-quest-tracker-classic)|
+| WoWInterface | [![WoWInterface](https://img.shields.io/badge/WoWInterface-Addon-blue?logo=wow)](https://www.wowinterface.com/downloads/fileinfo.php?id=26878) |
 
 Usage
 -----
