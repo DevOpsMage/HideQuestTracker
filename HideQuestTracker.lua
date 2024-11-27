@@ -3,18 +3,27 @@ HideQuestTrackerDB = HideQuestTrackerDB or { enabled = true }
 
 local frame = CreateFrame("Frame")
 local activeTicker = nil -- Reference for the ticker
+local lastTrackerState = nil -- Cache last state to avoid redundant operations
 
 local function HideQuestTracker()
-    if HideQuestTrackerDB.enabled and QuestWatchFrame and QuestWatchFrame:IsVisible() then
+    -- Avoid hiding if already hidden
+    if QuestWatchFrame and QuestWatchFrame:IsVisible() then
         QuestWatchFrame:Hide()
-        print("Quest tracker hidden.")
+        if lastTrackerState ~= "hidden" then
+            print("Quest tracker hidden.")
+            lastTrackerState = "hidden" -- Cache the state
+        end
     end
 end
 
 local function ShowQuestTracker()
+    -- Avoid showing if already visible
     if QuestWatchFrame and not QuestWatchFrame:IsVisible() then
         QuestWatchFrame:Show()
-        print("Quest tracker shown.")
+        if lastTrackerState ~= "shown" then
+            print("Quest tracker shown.")
+            lastTrackerState = "shown" -- Cache the state
+        end
     end
 end
 
@@ -43,8 +52,12 @@ local function SlashCommandHandler(msg)
         ToggleAddon(true)
     elseif msg == "off" then
         ToggleAddon(false)
+    elseif msg == "mem" then
+        UpdateAddOnMemoryUsage()
+        local usage = GetAddOnMemoryUsage("HideQuestTracker")
+        print(string.format("HideQuestTracker memory usage: %.2f KB", usage))
     else
-        print("Usage: /hqt on|off")
+        print("Usage: /hqt on|off|mem")
         print("Current status: " .. (HideQuestTrackerDB.enabled and "enabled" or "disabled"))
     end
 end
