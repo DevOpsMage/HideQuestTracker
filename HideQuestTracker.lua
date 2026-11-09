@@ -7,8 +7,9 @@ local lastTrackerState = nil -- Cache last state to avoid redundant operations
 
 local function HideQuestTracker()
     -- Avoid hiding if already hidden
-    if QuestWatchFrame and QuestWatchFrame:IsVisible() then
-        QuestWatchFrame:Hide()
+    local tracker = QuestWatchFrame or ObjectiveTrackerFrame
+    if tracker and tracker:IsVisible() then
+        tracker:Hide()
         if lastTrackerState ~= "hidden" then
             print("Quest tracker hidden.")
             lastTrackerState = "hidden" -- Cache the state
@@ -18,8 +19,9 @@ end
 
 local function ShowQuestTracker()
     -- Avoid showing if already visible
-    if QuestWatchFrame and not QuestWatchFrame:IsVisible() then
-        QuestWatchFrame:Show()
+    local tracker = QuestWatchFrame or ObjectiveTrackerFrame
+    if tracker and not tracker:IsVisible() then
+        tracker:Show()
         if lastTrackerState ~= "shown" then
             print("Quest tracker shown.")
             lastTrackerState = "shown" -- Cache the state

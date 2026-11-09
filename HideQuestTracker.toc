@@ -1,4 +1,4 @@
-## Interface: 11505
+## Interface: 11505, 16001
 ## Version: 1.0
 ## Title: Hide Quest Tracker
 ## Notes: Hides the quest tracker, useful for when you have another addon that displays quests.
