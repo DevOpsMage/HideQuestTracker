@@ -2,50 +2,88 @@
 HideQuestTrackerDB = HideQuestTrackerDB or { enabled = true }
 
 local frame = CreateFrame("Frame")
-local activeTicker = nil -- Reference for the ticker
-local lastTrackerState = nil -- Cache last state to avoid redundant operations
+local lastTrackerState = nil -- Cache last state to avoid redundant chat spam
+local hooksInstalled = false
+
+local function GetTrackerFrame()
+    -- Classic Era / Forever use QuestWatchFrame; some clients use WatchFrame or ObjectiveTrackerFrame
+    return QuestWatchFrame or WatchFrame or ObjectiveTrackerFrame
+end
 
 local function HideQuestTracker()
-    -- Avoid hiding if already hidden
-    local tracker = QuestWatchFrame or ObjectiveTrackerFrame
-    if tracker and tracker:IsVisible() then
+    local tracker = GetTrackerFrame()
+    if tracker and tracker:IsShown() then
         tracker:Hide()
         if lastTrackerState ~= "hidden" then
             print("Quest tracker hidden.")
-            lastTrackerState = "hidden" -- Cache the state
+            lastTrackerState = "hidden"
         end
+    elseif tracker and lastTrackerState ~= "hidden" then
+        -- Already hidden (e.g. OnShow re-hide); keep cache in sync without chat spam
+        lastTrackerState = "hidden"
     end
 end
 
 local function ShowQuestTracker()
-    -- Avoid showing if already visible
-    local tracker = QuestWatchFrame or ObjectiveTrackerFrame
-    if tracker and not tracker:IsVisible() then
+    local tracker = GetTrackerFrame()
+    if tracker and not tracker:IsShown() then
         tracker:Show()
         if lastTrackerState ~= "shown" then
             print("Quest tracker shown.")
-            lastTrackerState = "shown" -- Cache the state
+            lastTrackerState = "shown"
         end
     end
+end
+
+-- Re-hide immediately when Blizzard shows the tracker after quest progress updates
+local function EnforceHidden()
+    if HideQuestTrackerDB.enabled then
+        HideQuestTracker()
+    end
+end
+
+local function InstallHooks()
+    if hooksInstalled then
+        return
+    end
+
+    local tracker = GetTrackerFrame()
+    if not tracker then
+        return
+    end
+
+    -- Catch Show() from Blizzard UI (quest kills, looting, accepts, discoveries, etc.)
+    tracker:HookScript("OnShow", function()
+        EnforceHidden()
+    end)
+
+    -- QuestWatch_Update rebuilds and shows the tracker on Classic Era / Forever
+    if type(QuestWatch_Update) == "function" then
+        hooksecurefunc("QuestWatch_Update", EnforceHidden)
+    end
+
+    -- WatchFrame_Update on some Classic clients
+    if type(WatchFrame_Update) == "function" then
+        hooksecurefunc("WatchFrame_Update", EnforceHidden)
+    end
+
+    -- ObjectiveTracker_Update when ObjectiveTrackerFrame is present
+    if type(ObjectiveTracker_Update) == "function" then
+        hooksecurefunc("ObjectiveTracker_Update", EnforceHidden)
+    end
+
+    hooksInstalled = true
 end
 
 local function ToggleAddon(enable)
     HideQuestTrackerDB.enabled = enable
     if enable then
         print("HideQuestTracker enabled. The quest tracker will be hidden.")
+        InstallHooks()
         HideQuestTracker()
-        -- Start ticker if not already running
-        if not activeTicker then
-            activeTicker = C_Timer.NewTicker(5, HideQuestTracker)
-        end
     else
         print("HideQuestTracker disabled. The quest tracker will be shown.")
         ShowQuestTracker()
-        -- Stop the ticker if running
-        if activeTicker then
-            activeTicker:Cancel()
-            activeTicker = nil
-        end
     end
 end
 
@@ -71,14 +109,14 @@ SlashCmdList["HIDEQUESTTRACKER"] = SlashCommandHandler
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function(self, event)
     if event == "PLAYER_LOGIN" then
-        C_Timer.After(10, function()
-            if HideQuestTrackerDB.enabled then
-                HideQuestTracker()
-                -- Ensure only one ticker runs
-                if not activeTicker then
-                    activeTicker = C_Timer.NewTicker(5, HideQuestTracker)
+        InstallHooks()
+        if HideQuestTrackerDB.enabled then
+            -- Brief delay so Blizzard can finish initial layout; OnShow hooks keep it hidden after that
+            C_Timer.After(0.5, function()
+                if HideQuestTrackerDB.enabled then
+                    HideQuestTracker()
                 end
-            end
-        end)
+            end)
+        end
     end
 end)
